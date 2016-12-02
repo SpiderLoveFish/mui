@@ -38,7 +38,8 @@
 	$.waitingOptions = function(options) {
 		return $.extend(true, {}, {
 			autoShow: true,
-			title: ''
+			title: '',
+			modal:false
 		}, options);
 	};
 	/**
@@ -208,6 +209,10 @@
 						trigger(webview, 'pagebeforeshow', false);
 					});
 					return webview;
+				} else {
+					if (!url) {
+						throw new Error('webview[' + id + '] does not exist');
+					}
 				}
 			}
 			//显示waiting
@@ -225,19 +230,33 @@
 			//显示
 			nShow = $.showOptions(options.show);
 			if (nShow.autoShow) {
-				webview.addEventListener("loaded", function() {
+				var showWebview = function() {
 					//关闭等待框
 					if (nWaiting) {
 						nWaiting.close();
 					}
 					//显示页面
 					webview.show(nShow.aniShow, nShow.duration, function() {
-						triggerPreload(webview);
-						trigger(webview, 'pagebeforeshow', false);
+						//titleUpdate事件发生较早，很多环境尚不具备
+						// triggerPreload(webview);
+						// trigger(webview, 'pagebeforeshow', false);
 					});
 					webview.showed = true;
 					options.afterShowMethodName && webview.evalJS(options.afterShowMethodName + '(\'' + JSON.stringify(params) + '\')');
-				}, false);
+				};
+				//TODO 能走到这一步，应该不用判断url了吧？
+				if (!url) {
+					showWebview();
+				} else {
+					// webview.addEventListener("loaded", showWebview, false);
+					//titleUpdate触发时机早于loaded，更换为titleUpdate后，可以更早的显示webview
+					webview.addEventListener("titleUpdate", showWebview, false);
+					//loaded事件发生后，触发预加载和pagebeforeshow事件
+					webview.addEventListener("loaded",function(){
+						triggerPreload(webview);
+						trigger(webview, 'pagebeforeshow', false);
+					}, false);
+				}
 			}
 		}
 		return webview;
@@ -271,11 +290,16 @@
 					}, options.extras));
 					if (options.subpages) {
 						$.each(options.subpages, function(index, subpage) {
-							//TODO 子窗口也可能已经创建，比如公用模板的情况；
-							var subWebview = plus.webview.create(subpage.url, subpage.id || subpage.url, $.windowOptions(subpage.styles), $.extend({
-								preload: true
-							}, subpage.extras));
-							webview.append(subWebview);
+							var subpageId = subpage.id || subpage.url;
+							if (subpageId) { //过滤空对象
+								var subWebview = plus.webview.getWebviewById(subpageId);
+								if (!subWebview) { //如果该webview不存在，则创建
+									subWebview = plus.webview.create(subpage.url, subpageId, $.windowOptions(subpage.styles), $.extend({
+										preload: true
+									}, subpage.extras));
+								}
+								webview.append(subWebview);
+							}
 						});
 					}
 				}
@@ -312,7 +336,11 @@
 				webview = plus.webview.create(options.url, id, $.windowOptions(options.styles), options.extras);
 				if (options.subpages) {
 					$.each(options.subpages, function(index, subpage) {
-						var subWebview = plus.webview.create(subpage.url, subpage.id || subpage.url, $.windowOptions(subpage.styles), subpage.extras);
+						var subpageId = subpage.id || subpage.url;
+						var subWebview = plus.webview.getWebviewById(subpageId);
+						if (!subWebview) {
+							subWebview = plus.webview.create(subpage.url, subpageId, $.windowOptions(subpage.styles), subpage.extras);
+						}
 						webview.append(subWebview);
 					});
 				}
@@ -342,7 +370,10 @@
 				var openedWebview = opened[i];
 				var open_open = openedWebview.opened();
 				if (open_open && open_open.length > 0) {
+					//关闭打开的webview
 					$.closeOpened(openedWebview);
+					//关闭自己
+					openedWebview.close("none");
 				} else {
 					//如果直接孩子节点，就不用关闭了，因为父关闭的时候，会自动关闭子；
 					if (openedWebview.parent() !== webview) {
@@ -385,7 +416,9 @@
 		var webview;
 		if (!$.webviews[id]) { //保证执行一遍
 			//TODO 这里也有隐患，比如某个webview不是作为subpage创建的，而是作为target webview的话；
-			webview = plus.webview.create(options.url, id, options.styles, options.extras);
+			if (!plus.webview.getWebviewById(id)) {
+				webview = plus.webview.create(options.url, id, options.styles, options.extras);
+			}
 			//之前的实现方案：子窗口loaded之后再append到父窗口中；
 			//问题：部分子窗口loaded事件发生较晚，此时执行父窗口的children方法会返回空，导致父子通讯失败；
 			//     比如父页面执行完preload事件后，需触发子页面的preload事件，此时未append的话，就无法触发；
@@ -395,6 +428,7 @@
 			plus.webview.currentWebview().append(webview);
 			// });
 			$.webviews[id] = options;
+
 		}
 		return webview;
 	};

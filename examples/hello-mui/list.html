@@ -77,8 +77,18 @@
 								块级按钮
 							</a>
 						</li>
+						<li class="mui-table-view-cell">
+							<a class="mui-navigate-right" href="examples/buttons-with-loading.html">
+								加载中按钮
+							</a>
+						</li>
 					</ul>
 
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right" href="examples/card.html">
+						cardview（卡片视图）
+					</a>
 				</li>
 				<li class="mui-table-view-cell">
 					<a class="mui-navigate-right" href="examples/checkbox.html">
@@ -161,10 +171,20 @@
 					</ul>
 				</li>
 
-				<li class="mui-table-view-cell">
-					<a class="mui-navigate-right" open-type="common" href="examples/icons.html">
-						icon（图标）
-					</a>
+				<li class="mui-table-view-cell mui-collapse">
+					<a href="#" class="mui-navigate-right">icon（图标）</a>
+					<ul class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell">
+							<a class="mui-navigate-right" open-type="common" href="examples/icons.html">
+								内置图标
+							</a>
+						</li>
+						<li class="mui-table-view-cell">
+							<a class="mui-navigate-right" open-type="common" href="examples/icons-extra.html">
+								扩展图标
+							</a>
+						</li>
+					</ul>
 				</li>
 				<li class="mui-table-view-cell">
 					<a class="mui-navigate-right" href="examples/input.html">
@@ -213,10 +233,20 @@
 						media list（图文列表）
 					</a>
 				</li>
-				<li class="mui-table-view-cell">
-					<a class="mui-navigate-right" open-type="common" href="examples/nav.html">
-						nav bar（导航栏）
-					</a>
+				<li class="mui-table-view-cell mui-collapse">
+					<a href="#" class="mui-navigate-right">nav bar（导航栏）</a>
+					<ul class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell">
+							<a class="mui-navigate-right" open-type="common" href="examples/nav.html">
+								默认实现
+							</a>
+						</li>
+						<li class="mui-table-view-cell">
+							<a class="mui-navigate-right" open-type="common" href="examples/nav_transparent.html">
+								透明渐变
+							</a>
+						</li>
+					</ul>
 				</li>
 				<li class="mui-table-view-cell">
 					<a class="mui-navigate-right" href="examples/numbox.html">
@@ -268,6 +298,11 @@
 				<li class="mui-table-view-cell">
 					<a class="mui-navigate-right" href="examples/popovers.html">
 						popover（弹出菜单）
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right" href="examples/progressbar.html">
+						progress bar（进度条）
 					</a>
 				</li>
 				<li class="mui-table-view-cell mui-collapse">
@@ -340,6 +375,11 @@
 								左侧选项卡-div模式
 							</a>
 						</li>
+						<li class="mui-table-view-cell">
+							<a class="mui-navigate-right" href="examples/tab-vertical-scroll.html">
+								左侧选项卡-div模式-滚动监听
+							</a>
+						</li>
 					</ul>
 				</li>
 
@@ -373,6 +413,11 @@
 				<li class="mui-table-view-cell mui-plus-visible">
 					<a class="mui-navigate-right" open-type="common" href="examples/beecloud.html">
 						cloud Pay（云端支付）
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right" open-type="common" href="examples/feedback.html">
+						feedback（问题反馈） 
 					</a>
 				</li>
 				<li class="mui-table-view-cell">
@@ -478,7 +523,7 @@
 							mType: 'sub'
 						}
 					});
-					subWebview.addEventListener('loaded', function() {
+					subWebview.addEventListener('titleUpdate', function() {
 						setTimeout(function() {
 							subWebview.show();
 						}, 50);
